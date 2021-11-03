@@ -18,13 +18,14 @@ import java.util.ArrayList;
 public class EmpleadoDAO implements Dao<Empleado> {
 
     private static final int ALL = 0;
-    private static final int AUMENTAR_COMISION_JEFES = 6;
     public static final int EMPNO = 1;
     public static final int ENAME = 2;
     public static final int JOB = 3;
     public static final int COMPARA_FECHA = 4;
     public static final int BUSCA_POR_DEPARTAMENTO_Y_SALARIO = 5;
-    
+    private static final int AUMENTAR_COMISION_JEFES = 6;
+    private static final int SEPARAR_JEFES = 7;
+    private static final int SEPARAR_EMPLEADOS = 8;
 
     public String prepararQuerys(int i) {
         querys.add("select * from empleado");
@@ -34,6 +35,8 @@ public class EmpleadoDAO implements Dao<Empleado> {
         querys.add("select * from empleado where hiredate > ? ;");
         querys.add("select * from empleado where deptno = ? and sal > ?;");
         querys.add("select * from empleado where empno in (select mgr from empleado where comm is not null);");
+        querys.add("create or replace view view1 as select * from empleado where empno in (select mgr from empleado where mgr is not null); ");
+        querys.add("create or replace view view2 as select * from empleado where empno not in (select mgr from empleado where mgr is not null);");
         return querys.get(i);
     }
 
@@ -84,6 +87,17 @@ public class EmpleadoDAO implements Dao<Empleado> {
         return lista;
     }
 
+    public void separarEmpleadosYJefes(Connection conn) {
+        try {
+            Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+            s.execute(prepararQuerys(SEPARAR_JEFES));
+            s.execute(prepararQuerys(SEPARAR_EMPLEADOS));
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void aumentarComisiones(Connection conn) {
         try {
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -117,7 +131,6 @@ public class EmpleadoDAO implements Dao<Empleado> {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     @Override

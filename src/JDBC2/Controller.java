@@ -215,7 +215,13 @@ public class Controller {
                 break;
                 
                 case 12:
-                    
+                    try{
+                        conn = mySQLFactory.getConnection();
+                        empDAO.separarEmpleadosYJefes(conn);
+                        mySQLFactory.releaseConnection(conn);
+                    }catch(Exception ex){
+                        System.out.println(ex.getMessage());
+                    }
 
                 default:
                     break;
