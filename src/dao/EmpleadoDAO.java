@@ -17,21 +17,24 @@ import java.util.ArrayList;
  */
 public class EmpleadoDAO implements Dao<Empleado> {
 
+    private static final int ALL = 0;
+    private static final int AUMENTAR_COMISION_JEFES = 6;
     public static final int EMPNO = 1;
     public static final int ENAME = 2;
     public static final int JOB = 3;
     public static final int COMPARA_FECHA = 4;
     public static final int BUSCA_POR_DEPARTAMENTO_Y_SALARIO = 5;
-    public static final int DUPLICAR_COMISION_EMPLEADOS = 6;
+    
 
     public String prepararQuerys(int i) {
+        querys.add("select * from empleado");
         querys.add("select * from empleado where empno = ? ;");
         querys.add("select * from empleado where ename= ?;");
         querys.add("select * from empleado where job = ?;");
         querys.add("select * from empleado where hiredate > ? ;");
-        querys.add("select * from empleado where deptno = ? and sal > ?");
-        querys.add("update empleados set comm=comm*2;");
-        return querys.get(i - 1);
+        querys.add("select * from empleado where deptno = ? and sal > ?;");
+        querys.add("select * from empleado where empno in (select mgr from empleado where comm is not null);");
+        return querys.get(i);
     }
 
     @Override
@@ -55,6 +58,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
                     String[] list = id.split(";");
                     ps.setInt(1, Integer.parseInt(list[0]));
                     ps.setInt(2, Integer.parseInt(list[1]));
+
                 default:
                     break;
             }
@@ -80,12 +84,26 @@ public class EmpleadoDAO implements Dao<Empleado> {
         return lista;
     }
 
-    public void invertirMayusculas(Connection conn) {
-
+    public void aumentarComisiones(Connection conn) {
         try {
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_UPDATABLE);
-            ResultSet rs = s.executeQuery("SELECT * FROM empleado; ");
+            ResultSet rs = s.executeQuery(prepararQuerys(AUMENTAR_COMISION_JEFES));
+            while (rs.next()) {
+                rs.updateFloat("comm", 500.5f);
+                rs.updateRow();
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void invertirMayusculas(Connection conn) {
+        try {
+            Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_UPDATABLE);
+            ResultSet rs = s.executeQuery(prepararQuerys(ALL));
             while (rs.next()) {
                 String ename = rs.getString(2);
                 boolean mays = Character.isUpperCase(ename.charAt(0));
@@ -108,7 +126,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
         try {
             Statement s = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                     ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = s.executeQuery("SELECT * FROM empleado; ");
+            ResultSet rs = s.executeQuery(prepararQuerys(ALL));
             int totalRows;
             rs.last();
             totalRows = rs.getRow();

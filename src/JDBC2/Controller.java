@@ -201,8 +201,21 @@ public class Controller {
                 } catch (Exception ex) {
                     Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
                 break;
+                case 11:
+                    try {
+                    conn = mySQLFactory.getConnection();
+                    empDAO.aumentarComisiones(conn);
+                    mySQLFactory.releaseConnection(conn);
+
+                } catch (Exception ex) {
+                    Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+
+                }
+                break;
+                
+                case 12:
+                    
 
                 default:
                     break;

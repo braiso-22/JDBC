@@ -30,7 +30,8 @@ public class Vista {
         System.out.println("08.) Buscar todos los familiares de un empleado");
         System.out.println("09.) Buscar empleados por departamento y salario mayor que el introducido");
         System.out.println("10.) Invertir mayusculas en empleados");
-        System.out.println("11.) Duplicar comisiones de empleados");
+        System.out.println("11.) Aumentar comisiones de jefes");
+        System.out.println("12.) Crear vistas por tipo de empleado");
         System.out.println("0.) Salir");
         int opcion;
         try {
