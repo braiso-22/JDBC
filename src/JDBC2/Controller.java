@@ -237,7 +237,19 @@ public class Controller {
                     System.out.println(ex.getMessage());
                 }
                 break;
-
+                case 14:
+                     try {
+                    conn = mySQLFactory.getConnection();
+                    id = v.showMessageString("Introduce el dato");
+                    empleados = empDAO.buscarEmpleadoPorNumero(id, conn);
+                    for (Empleado e : empleados) {
+                        output += e.toString();
+                    }
+                    mySQLFactory.releaseConnection(conn);
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
                 default:
                     break;
             }

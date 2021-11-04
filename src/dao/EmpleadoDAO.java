@@ -29,6 +29,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
     private static final int SEPARAR_JEFES = 7;
     private static final int SEPARAR_EMPLEADOS = 8;
     private static final int NUMERO_JEFES = 9;
+    private static final int ALL_ALMACENADO = 10;
 
     public String prepararQuerys(int i) {
         querys.add("select * from empleado");
@@ -41,6 +42,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
         querys.add("create or replace view view1 as select * from empleado where empno in (select mgr from empleado where mgr is not null); ");
         querys.add("create or replace view view2 as select * from empleado where empno not in (select mgr from empleado where mgr is not null);");
         querys.add("{call getJefes};");
+        querys.add("{call getALL(%s)};");
         return querys.get(i);
     }
 
@@ -88,6 +90,29 @@ public class EmpleadoDAO implements Dao<Empleado> {
             System.out.println(e.getMessage());
         }
 
+        return lista;
+    }
+
+    public List<Empleado> buscarEmpleadoPorNumero(String id, Connection conn) {
+        List<Empleado> lista = new ArrayList<>();
+        try {
+            CallableStatement cs = conn.prepareCall(String.format(prepararQuerys(ALL_ALMACENADO), id));
+            ResultSet result = cs.executeQuery();
+
+            while (result.next()) {
+                int empno = result.getInt(1);
+                String ename = result.getString(2);
+                String job = result.getString(3);
+                int mgr = result.getInt(4);
+                LocalDate hiredate = LocalDate.parse(result.getDate(5).toString());
+                float sal = result.getFloat(6);
+                float comm = result.getFloat(7);
+                int deptno = result.getInt(8);
+                lista.add(new Empleado(empno, ename, job, mgr, hiredate, sal, comm, deptno));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(EmpleadoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return lista;
     }
 
