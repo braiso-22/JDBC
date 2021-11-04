@@ -10,6 +10,8 @@ import objetosEmpresa.Empleado;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,6 +28,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
     private static final int AUMENTAR_COMISION_JEFES = 6;
     private static final int SEPARAR_JEFES = 7;
     private static final int SEPARAR_EMPLEADOS = 8;
+    private static final int NUMERO_JEFES = 9;
 
     public String prepararQuerys(int i) {
         querys.add("select * from empleado");
@@ -37,6 +40,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
         querys.add("select * from empleado where empno in (select mgr from empleado where comm is not null);");
         querys.add("create or replace view view1 as select * from empleado where empno in (select mgr from empleado where mgr is not null); ");
         querys.add("create or replace view view2 as select * from empleado where empno not in (select mgr from empleado where mgr is not null);");
+        querys.add("{call getJefes};");
         return querys.get(i);
     }
 
@@ -85,6 +89,20 @@ public class EmpleadoDAO implements Dao<Empleado> {
         }
 
         return lista;
+    }
+
+    public int mostrarNumeroDeJefes(Connection conn) {
+        int num = -1;
+        try {
+            CallableStatement cs = conn.prepareCall(prepararQuerys(NUMERO_JEFES));
+            ResultSet result = cs.executeQuery();
+            result.next();
+            num = result.getInt(1);
+
+        } catch (SQLException ex) {
+            Logger.getLogger(EmpleadoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return num;
     }
 
     public void separarEmpleadosYJefes(Connection conn) {

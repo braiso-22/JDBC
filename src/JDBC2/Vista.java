@@ -32,6 +32,7 @@ public class Vista {
         System.out.println("10.) Invertir mayusculas en empleados");
         System.out.println("11.) Aumentar comisiones de jefes");
         System.out.println("12.) Crear vistas por tipo de empleado");
+        System.out.println("13.) Mostrar numero de jefes");
         System.out.println("0.) Salir");
         int opcion;
         try {

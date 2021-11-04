@@ -213,15 +213,30 @@ public class Controller {
 
                 }
                 break;
-                
+
                 case 12:
-                    try{
-                        conn = mySQLFactory.getConnection();
-                        empDAO.separarEmpleadosYJefes(conn);
-                        mySQLFactory.releaseConnection(conn);
-                    }catch(Exception ex){
-                        System.out.println(ex.getMessage());
+                    try {
+                    conn = mySQLFactory.getConnection();
+                    empDAO.separarEmpleadosYJefes(conn);
+                    mySQLFactory.releaseConnection(conn);
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
+                case 13:
+                    try {
+                    conn = mySQLFactory.getConnection();
+                    int numJefes = empDAO.mostrarNumeroDeJefes(conn);
+                    if (numJefes != -1) {
+                        output += "Hay " + numJefes + " jefes\n";
+                    } else {
+                        output += "error";
                     }
+                    mySQLFactory.releaseConnection(conn);
+                } catch (Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+                break;
 
                 default:
                     break;
