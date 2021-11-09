@@ -23,7 +23,7 @@ public class FamiliarDAO implements Dao<Familiar> {
     public static final int BUSCA_POR_EMPLEADO = 1;
 
     public String prepararQuerys(int i) {
-        querys.add("select * from familiar f inner join empleado e on f.empleado = e.empno where e.ename= ? ;");
+        querys.add("select * from familiar f inner join empleado e on f.empleado = e.empno where e.ename = ? ;");
         return querys.get(i - 1);
     }
 

@@ -34,6 +34,7 @@ public class Vista {
         System.out.println("12.) Crear vistas por tipo de empleado");
         System.out.println("13.) Mostrar numero de jefes");
         System.out.println("14.) Buscar empleado por numero de empleado");
+        System.out.println("15.) Insertar por batch empleados");
         System.out.println("0.) Salir");
         int opcion;
         try {

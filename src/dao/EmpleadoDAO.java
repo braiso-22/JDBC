@@ -30,6 +30,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
     private static final int SEPARAR_EMPLEADOS = 8;
     private static final int NUMERO_JEFES = 9;
     private static final int ALL_ALMACENADO = 10;
+    private static final int INSERTAR_POR_BATCH = 11;
 
     public String prepararQuerys(int i) {
         querys.add("select * from empleado");
@@ -43,6 +44,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
         querys.add("create or replace view view2 as select * from empleado where empno not in (select mgr from empleado where mgr is not null);");
         querys.add("{call getJefes};");
         querys.add("{call getALL(%s)};");
+        querys.add("insert into empleado(EMPNO, ENAME, JOB, HIREDATE, SAL, COMM, DEPTNO) values(?, ?, ?, ?, ?, ?, ?);");
         return querys.get(i);
     }
 
@@ -128,6 +130,16 @@ public class EmpleadoDAO implements Dao<Empleado> {
             Logger.getLogger(EmpleadoDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return num;
+    }
+
+    public void insertarBatch(Connection conn) {
+        try {
+            PreparedStatement ps = conn.prepareStatement(prepararQuerys(INSERTAR_POR_BATCH));
+            ps.addBatch(string);
+            ps.executeBatch();
+        } catch (Exception e) {
+
+        }
     }
 
     public void separarEmpleadosYJefes(Connection conn) {
