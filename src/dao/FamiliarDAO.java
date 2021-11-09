@@ -5,7 +5,12 @@
  */
 package dao;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
@@ -21,9 +26,11 @@ import objetosEmpresa.Familiar;
 public class FamiliarDAO implements Dao<Familiar> {
 
     public static final int BUSCA_POR_EMPLEADO = 1;
+    private static final int INSERTAR_POR_BATCH = 2;
 
     public String prepararQuerys(int i) {
         querys.add("select * from familiar f inner join empleado e on f.empleado = e.empno where e.ename = ? ;");
+        querys.add("insert into familiar(numero, nombreFamiliar, edad, parentesco, empleado) values(?, ?, ?, ?, ?);");
         return querys.get(i - 1);
     }
 
@@ -88,6 +95,38 @@ public class FamiliarDAO implements Dao<Familiar> {
         }
         // TODO Auto-generated method stub
         return lista;
+    }
+
+    public void insertarBatch(Connection conn) {
+        File csv = new File("src/batch/batchFamiliar.csv");
+        String cadena;
+
+        try {
+            FileReader fr = new FileReader(csv);
+            BufferedReader bfr = new BufferedReader(fr);
+            PreparedStatement ps = conn.prepareStatement(prepararQuerys(INSERTAR_POR_BATCH));
+
+            while ((cadena = bfr.readLine()) != null) {
+                String[] cadenas = cadena.split(";");
+                int i = 1;
+                for (String a : cadenas) {
+                    if (i == 1 || i == 3 || i == 5) {
+                        ps.setInt(i, Integer.parseInt(a));
+                    } else {
+                        ps.setString(i, a);
+                    }
+
+                    i++;
+                }
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+        } catch (IOException ex) {
+            System.err.printf("Error: %s\n", ex.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 }

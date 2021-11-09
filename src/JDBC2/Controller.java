@@ -250,6 +250,24 @@ public class Controller {
                     System.out.println(ex.getMessage());
                 }
                 break;
+                case 15:
+                    try {
+                    conn = mySQLFactory.getConnection();
+                    empDAO.insertarBatch(conn);
+                    mySQLFactory.releaseConnection(conn);
+                } catch (Exception ex) {
+
+                }
+                break;
+                case 16:
+                    try {
+                    conn = mySQLFactory.getConnection();
+                    familiarDAO.insertarBatch(conn);
+                    mySQLFactory.releaseConnection(conn);
+                } catch (Exception ex) {
+                    
+                }
+                break;
                 default:
                     break;
             }

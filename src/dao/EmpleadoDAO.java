@@ -5,6 +5,10 @@
  */
 package dao;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import objetosEmpresa.Empleado;
 import java.sql.*;
@@ -44,7 +48,7 @@ public class EmpleadoDAO implements Dao<Empleado> {
         querys.add("create or replace view view2 as select * from empleado where empno not in (select mgr from empleado where mgr is not null);");
         querys.add("{call getJefes};");
         querys.add("{call getALL(%s)};");
-        querys.add("insert into empleado(EMPNO, ENAME, JOB, HIREDATE, SAL, COMM, DEPTNO) values(?, ?, ?, ?, ?, ?, ?);");
+        querys.add("insert into empleado(EMPNO, ENAME, JOB, MGR, HIREDATE, SAL, DEPTNO) values(?, ?, ?, ?, ?, ?, ?);");
         return querys.get(i);
     }
 
@@ -133,12 +137,36 @@ public class EmpleadoDAO implements Dao<Empleado> {
     }
 
     public void insertarBatch(Connection conn) {
-        try {
-            PreparedStatement ps = conn.prepareStatement(prepararQuerys(INSERTAR_POR_BATCH));
-            ps.addBatch(string);
-            ps.executeBatch();
-        } catch (Exception e) {
+        File csv = new File("src/batch/batchEmpleado.csv");
+        String cadena;
 
+        try {
+            FileReader fr = new FileReader(csv);
+            BufferedReader bfr = new BufferedReader(fr);
+            PreparedStatement ps = conn.prepareStatement(prepararQuerys(INSERTAR_POR_BATCH));
+
+            while ((cadena = bfr.readLine()) != null) {
+                String[] cadenas = cadena.split(";");
+                int i = 1;
+                for (String a : cadenas) {
+                    if (i == 1 || i == 4 || i == 8) {
+                        ps.setInt(i, Integer.parseInt(a));
+                    } else if (i == 5) {
+                        ps.setDate(i, Date.valueOf(a));
+                    } else {
+                        ps.setString(i, a);
+                    }
+
+                    i++;
+                }
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+        } catch (IOException ex) {
+            System.err.printf("Error: %s\n", ex.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
